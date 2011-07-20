@@ -16,6 +16,6 @@
 
 ENV["RACK_ENV"] = 'production'
 
-require 'slow'
+require './slow.rb'
 
 run Sinatra::Application

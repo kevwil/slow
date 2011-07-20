@@ -31,44 +31,49 @@
 # The script supports POST method override, too.
 # * curl -i -XPOST -d "_method=PUT&param1=update_me" http://localhost/my/personal/info
 #
-# There are two optional querystring parameters you can provide to tweak the behavior.
+# There are three optional querystring parameters you can provide to tweak the behavior.
 # * To return a specific error code, with debug info in the body:
 # ** curl -i http://localhost/foo/bar/baz?errorcode=403
 # * To fail after the timeout is complete, rather than returning a successful 200 OK status.
 # ** curl -i http://localhost/foo?fail=true
+# * To timeout for a specific period other then the default of 5000 milliseconds
+# ** curl - "http://localhost/foo?timeout=10000"
 ##########################
-
+ 
 ### gems required to make this file run as a web server
 # require 'rubygems'
 require 'sinatra'
 require 'rack/contrib'
-
+ 
 ### extra Rack middleware to help this run correctly
 # use Rack::Lint
 use Rack::BounceFavicon
 # use Rack::Lint
-
+ 
 ### it's tempting to add this Middleware to enable throttling
 # http://datagraph.rubyforge.org/rack-throttle/
-
+ 
 ### config variables when run in foreground
 # set :environment, :production
 # set :port, 80
 set :method_override, true
-
-### configure the delay, in milliseconds
-timeout = 5000
-
+ 
 ### the app itself :
 # all five HTTP methods do the same thing
 %w{get post put delete head}.each do |method|
-	# call the method for each HTTP method, with a wildcard path
-	send method.to_sym, '/*' do
-		# define the block of behavior for each call
-		# block the request (sleep the thread) for the given delay time, in seconds
-		sleep(timeout/1000)
-		# return error code with message, if :errorcode parameter is given
-		halt params[:errorcode].to_i, "#{request.request_method} request to #{request.path_info} failed after #{timeout} milliseconds with error code #{params[:errorcode]}\n" if params[:errorcode]
-		halt 500 if params[:fail]
-	end
+  # call the method for each HTTP method, with a wildcard path
+  send method.to_sym, '/*' do
+    # This checks to see if the "timeout" param was included in the URL and sets the timeout
+    if params[:timeout]
+      timeout = params[:timeout].to_i
+    else
+      timeout = 5000
+    end
+    # define the block of behavior for each call
+    # block the request (sleep the thread) for the given delay time, in seconds
+    sleep(timeout/1000)
+    # return error code with message, if :errorcode parameter is given
+    halt params[:errorcode].to_i, "#{request.request_method} request to #{request.path_info} failed after #{timeout} milliseconds with error code #{params[:errorcode]}\n" if params[:errorcode]
+    halt 500 if params[:fail]
+  end
 end
