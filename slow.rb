@@ -71,7 +71,7 @@ set :method_override, true
 
 # set this value to use a default target host when proxying
 # (set to protocol://host or protocol://host:port)
-proxy = 'http://datasecure01.dmz.arch.ecollege.com:8080'
+# proxy = 'http://localhost:8080'
 
 # all five HTTP methods do the same thing
 %w{get post put delete head}.each do |method|
@@ -81,7 +81,7 @@ proxy = 'http://datasecure01.dmz.arch.ecollege.com:8080'
     if params[:timeout]
       timeout = params[:timeout].to_i
     else
-      timeout = 2000
+      timeout = 5000
     end
     # define the block of behavior for each call
     # block the request (sleep the thread) for the given delay time, in seconds
