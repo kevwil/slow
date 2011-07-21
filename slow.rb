@@ -31,20 +31,26 @@
 # The script supports POST method override, too.
 # * curl -i -XPOST -d "_method=PUT&param1=update_me" http://localhost/my/personal/info
 #
+# The script supports a proxy behavior, where it will call the same URI on a remote host
+# after the timeout has expired, and return the result.
+# * curl -i "http://localhost/foo?proxyTo=http%3A%2F%2Flocalhost2%2F"
+#
 # There are three optional querystring parameters you can provide to tweak the behavior.
 # * To return a specific error code, with debug info in the body:
 # ** curl -i http://localhost/foo/bar/baz?errorcode=403
 # * To fail after the timeout is complete, rather than returning a successful 200 OK status.
 # ** curl -i http://localhost/foo?fail=true
 # * To timeout for a specific period other then the default of 5000 milliseconds
-# ** curl - "http://localhost/foo?timeout=10000"
+# ** curl -i "http://localhost/foo?timeout=10000"
 ##########################
  
 ### gems required to make this file run as a web server
 # require 'rubygems'
 require 'sinatra'
 require 'rack/contrib'
- 
+require 'open-uri'
+require 'cgi'
+
 ### extra Rack middleware to help this run correctly
 # use Rack::Lint
 use Rack::BounceFavicon
@@ -72,6 +78,10 @@ set :method_override, true
     # define the block of behavior for each call
     # block the request (sleep the thread) for the given delay time, in seconds
     sleep(timeout/1000)
+    # run proxy call and return result, if desired
+    if params[:proxyTo]
+      
+    end
     # return error code with message, if :errorcode parameter is given
     halt params[:errorcode].to_i, "#{request.request_method} request to #{request.path_info} failed after #{timeout} milliseconds with error code #{params[:errorcode]}\n" if params[:errorcode]
     halt 500 if params[:fail]
