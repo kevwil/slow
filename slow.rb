@@ -71,7 +71,7 @@ set :method_override, true
 
 # set this value to use a default target host when proxying
 # (set to protocol://host or protocol://host:port)
-# proxy = 'http://localhost:3000'
+proxy = 'http://datasecure01.dmz.arch.ecollege.com:8080'
 
 # all five HTTP methods do the same thing
 %w{get post put delete head}.each do |method|
@@ -81,7 +81,7 @@ set :method_override, true
     if params[:timeout]
       timeout = params[:timeout].to_i
     else
-      timeout = 5000
+      timeout = 2000
     end
     # define the block of behavior for each call
     # block the request (sleep the thread) for the given delay time, in seconds
@@ -95,13 +95,13 @@ set :method_override, true
         uri = URI.parse(Rack::Utils.unescape(params[:proxyTo]))
         qsHash = CGI::parse(request.query_string)
         qsHash.delete 'proxyTo'
-        qs = qsHash.map{|k,v| "#{CGI.escape(k)}=#{CGI.escape(v)}"}.join("&")
+        #qs = qsHash.map{|k,v| "#{CGI.escape(k)}=#{CGI.escape(v)}"}.join("&")
+        qs = qsHash.map{|k,v| "#{k}=#{v.join(',')}"}.join('&')
         out_path = "#{request.path}?#{qs}"
       end
       Net::HTTP.start(uri.host, uri.port) do |http|
         if request.post? or request.put?
-          puts request.POST.inspect
-          returned = http.send method.to_sym, out_path, request.POST.to_s
+          returned = http.send method.to_sym, out_path, request.body.read
         else
           returned = http.send method.to_sym, out_path
         end
