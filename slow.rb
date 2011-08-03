@@ -72,6 +72,7 @@ set :method_override, true
 # set this value to use a default target host when proxying
 # (set to protocol://host or protocol://host:port)
 # proxy = 'http://localhost:8080'
+proxy = nil # variable must be defined, so set it to nil if not using it
 
 # all five HTTP methods do the same thing
 %w{get post put delete head}.each do |method|
