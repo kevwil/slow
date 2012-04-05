@@ -1,7 +1,7 @@
 ##########################
 # This Ruby script is a Sinatra app (http://sinatrarb.com).
 # To run it, you need:
-# * ruby (1.8.7 is best, should work in 1.9.2, might work in jruby, etc.)
+# * ruby (developed using 1.8.7 but should be fine in 1.9.2/1.9.3, might work in jruby, etc.)
 # * rubygems
 # * sinatra gem
 # * rack-contrib gem
